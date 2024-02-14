@@ -6,9 +6,7 @@
 <!-- [![RSD](https://img.shields.io/badge/rsd-qubols-00a3e3.svg)](https://www.research-software.nl/software/qubols) 
 [![workflow pypi badge](https://img.shields.io/pypi/v/qubols.svg?colorB=blue)](https://pypi.python.org/project/qubols/) | -->
 
-The Quantum Application Lab Core Library
-
-
+Solving Linear Systems Using QUBO
 
 ## Installation
 
