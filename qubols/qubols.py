@@ -1,11 +1,8 @@
-from sympy import Symbol
 from sympy.matrices import Matrix, SparseMatrix
 import numpy as np
-from qubols.dwave.qubols.encodings import RealUnitQbitEncoding
-from typing import Optional, Union, List, Callable, Dict, Tuple
-from dwave.system import DWaveSampler, EmbeddingComposite
+from qubols.encodings import RealUnitQbitEncoding
+from typing import Optional, Union, Dict
 import neal
-from dimod import ExactSolver
 import scipy.sparse as spsp
 from .solution_vector import SolutionVector
 

@@ -1,13 +1,7 @@
-from sympy import Symbol
-from sympy.matrices import Matrix
 import numpy as np
-from qubols.dwave.qubols.encodings import RealUnitQbitEncoding
-from typing import Optional, Union, List, Callable, Dict, Tuple
-from dwave.system import DWaveSampler, EmbeddingComposite
+from qubols.encodings import RealUnitQbitEncoding
+from typing import Optional, Union, Dict
 import neal
-from dimod import ExactSolver
-from functools import partial
-from dwave.embedding.chain_strength import uniform_torque_compensation
 import dwave_networkx as dnx
 from minorminer import find_embedding
 from dwave.embedding import embed_qubo, majority_vote, chain_break_frequency

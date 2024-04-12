@@ -1,10 +1,5 @@
-from sympy import Symbol
 from sympy.matrices import Matrix
 import numpy as np
-from qubols.dwave.qubols.encodings import RealUnitQbitEncoding
-from dwave.system import DWaveSampler, EmbeddingComposite
-import neal
-from dimod import ExactSolver
 
 
 class SolutionVector(object):
