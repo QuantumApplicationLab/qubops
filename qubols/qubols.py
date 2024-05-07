@@ -49,7 +49,7 @@ class QUBOLS:
 
         return options
 
-    def solve(self, matrix: np.ndarray, vector: np.ndarray):
+    def solve(self, matrix: np.ndarray, vector: np.ndarray, range: float):
         """Solve the linear system
 
         Args:
@@ -69,6 +69,7 @@ class QUBOLS:
             size=self.size,
             nqbit=self.options["num_qbits"],
             encoding=self.options["encoding"],
+            range=range,
         )
         self.x = sol.create_polynom_vector()
         self.qubo_dict = self.create_qubo_matrix(self.x)
