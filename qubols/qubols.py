@@ -1,6 +1,6 @@
 from sympy.matrices import Matrix, SparseMatrix
 import numpy as np
-from qubols.encodings import RealUnitQbitEncoding
+from qubols.encodings import RangedEfficientEncoding
 from typing import Optional, Union, Dict
 import neal
 import scipy.sparse as spsp
@@ -18,7 +18,8 @@ class QUBOLS:
 
         self.default_solve_options = {
             "sampler": neal.SimulatedAnnealingSampler(),
-            "encoding": RealUnitQbitEncoding,
+            "encoding": RangedEfficientEncoding,
+            "range": 1.0,
             "num_qbits": 11,
             "num_reads": 100,
             "verbose": False,
@@ -49,7 +50,7 @@ class QUBOLS:
 
         return options
 
-    def solve(self, matrix: np.ndarray, vector: np.ndarray, range: float):
+    def solve(self, matrix: np.ndarray, vector: np.ndarray):
         """Solve the linear system
 
         Args:
@@ -69,7 +70,7 @@ class QUBOLS:
             size=self.size,
             nqbit=self.options["num_qbits"],
             encoding=self.options["encoding"],
-            range=range,
+            range=self.options["range"],
         )
         self.x = sol.create_polynom_vector()
         self.qubo_dict = self.create_qubo_matrix(self.x)

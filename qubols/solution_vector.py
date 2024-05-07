@@ -4,7 +4,7 @@ import numpy as np
 
 class SolutionVector(object):
 
-    def __init__(self, size, nqbit, encoding, range=1, base_name="x"):
+    def __init__(self, size, nqbit, encoding, range=1.0, base_name="x"):
         """Encode the solution vector in a list of RealEncoded
 
         Args:
@@ -17,8 +17,10 @@ class SolutionVector(object):
         self.nqbit = nqbit
         self.base_name = base_name
         self.encoding = encoding
+        self.range = range
+        if not isinstance(self.range, list):
+            self.range = [self.range] * size
         self.encoded_reals = self.create_encoding()
-        self.range = 1
 
     def create_encoding(self):
         """Create the eocnding for all the unknowns
@@ -30,7 +32,9 @@ class SolutionVector(object):
         encoded_reals = []
         for i in range(self.size):
             var_base_name = self.base_name + "_%03d" % (i + 1)
-            encoded_reals.append(self.encoding(self.nqbit, var_base_name))
+            encoded_reals.append(
+                self.encoding(self.nqbit, self.range[i], var_base_name)
+            )
 
         return encoded_reals
 
