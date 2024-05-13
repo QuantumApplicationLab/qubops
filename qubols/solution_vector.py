@@ -4,7 +4,7 @@ import numpy as np
 
 class SolutionVector(object):
 
-    def __init__(self, size, nqbit, encoding, range=1.0, base_name="x"):
+    def __init__(self, size, nqbit, encoding, range=1.0, offset=0.0, base_name="x"):
         """Encode the solution vector in a list of RealEncoded
 
         Args:
@@ -18,8 +18,13 @@ class SolutionVector(object):
         self.base_name = base_name
         self.encoding = encoding
         self.range = range
+        self.offset = offset
         if not isinstance(self.range, list):
             self.range = [self.range] * size
+
+        if not isinstance(self.offset, list):
+            self.offset = [self.offset] * size
+
         self.encoded_reals = self.create_encoding()
 
     def create_encoding(self):
@@ -33,7 +38,7 @@ class SolutionVector(object):
         for i in range(self.size):
             var_base_name = self.base_name + "_%03d" % (i + 1)
             encoded_reals.append(
-                self.encoding(self.nqbit, self.range[i], var_base_name)
+                self.encoding(self.nqbit, self.range[i], self.offset[i], var_base_name)
             )
 
         return encoded_reals
@@ -56,4 +61,4 @@ class SolutionVector(object):
         for i, real in enumerate(self.encoded_reals):
             local_data = data[i * self.nqbit : (i + 1) * self.nqbit]
             sol.append(real.decode_polynom(local_data))
-        return np.array(sol)
+        return np.array(sol) + np.array(self.offset)

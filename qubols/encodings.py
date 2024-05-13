@@ -29,13 +29,16 @@ class BaseQbitEncoding(object):
 
 class RangedEfficientEncoding(BaseQbitEncoding):
 
-    def __init__(self, nqbit, range, var_base_name):
+    def __init__(self, nqbit, range, offset, var_base_name):
         super().__init__(nqbit, var_base_name)
         self.base_exponent = 0
         self.int_max = 2 ** (nqbit - 1) - 1
+
         if not isinstance(range, list):
             range = [range] * nqbit
         self.max_absval = [r / self.int_max for r in range]
+
+        self.offset = offset
 
     def create_polynom(self):
         """

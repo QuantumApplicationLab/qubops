@@ -20,6 +20,7 @@ class QUBOLS:
             "sampler": neal.SimulatedAnnealingSampler(),
             "encoding": RangedEfficientEncoding,
             "range": 1.0,
+            "offset": 0.0,
             "num_qbits": 11,
             "num_reads": 100,
             "verbose": False,
@@ -71,6 +72,7 @@ class QUBOLS:
             nqbit=self.options["num_qbits"],
             encoding=self.options["encoding"],
             range=self.options["range"],
+            offset=self.options["offset"],
         )
         self.x = sol.create_polynom_vector()
         self.qubo_dict = self.create_qubo_matrix(self.x)
@@ -95,6 +97,9 @@ class QUBOLS:
         Returns:
             _type_: _description_
         """
+
+        offset = self.A @ self.options["offset"]
+
         if isinstance(self.A, spsp.spmatrix):
             A = SparseMatrix(*self.A.shape, dict(self.A.todok().items()))
         else:
@@ -104,7 +109,8 @@ class QUBOLS:
             b = SparseMatrix(*self.b.shape, dict(self.b.todok().items()))
         else:
             b = Matrix(self.b)
-
+            b -= offset.reshape(-1, 1)
+        print(b.shape)
         polynom = x.T @ A.T @ A @ x - x.T @ A.T @ b - b.T @ A @ x + b.T @ b
         polynom = polynom[0]
         polynom = polynom.expand()
