@@ -16,7 +16,7 @@ class QUBOLS:
             options: dictionary of options for solving the linear system
         """
 
-        self.default_solve_options = {
+        default_solve_options = {
             "sampler": neal.SimulatedAnnealingSampler(),
             "encoding": RangedEfficientEncoding,
             "range": 1.0,
@@ -25,19 +25,22 @@ class QUBOLS:
             "num_reads": 100,
             "verbose": False,
         }
-        self.options = self._validate_solve_options(options)
+        self.options = self._validate_solve_options(options, default_solve_options)
         self.sampler = self.options.pop("sampler")
 
-    def _validate_solve_options(self, options: Union[Dict, None]) -> Dict:
+    @staticmethod
+    def _validate_solve_options(
+        options: Union[Dict, None], default_solve_options: Dict
+    ) -> Dict:
         """validate the options used for the solve methods
 
         Args:
             options (Union[Dict, None]): options
         """
-        valid_keys = self.default_solve_options.keys()
+        valid_keys = default_solve_options.keys()
 
         if options is None:
-            options = self.default_solve_options
+            options = default_solve_options
 
         else:
             for k in options.keys():
@@ -47,7 +50,7 @@ class QUBOLS:
                     )
             for k in valid_keys:
                 if k not in options.keys():
-                    options[k] = self.default_solve_options[k]
+                    options[k] = default_solve_options[k]
 
         return options
 
@@ -67,21 +70,29 @@ class QUBOLS:
         self.b = vector
         self.size = self.A.shape[0]
 
-        sol = SolutionVector(
-            size=self.size,
-            nqbit=self.options["num_qbits"],
-            encoding=self.options["encoding"],
-            range=self.options["range"],
-            offset=self.options["offset"],
-        )
-        self.x = sol.create_polynom_vector()
+        if not isinstance(self.options["offset"], list):
+            self.options["offset"] = [self.options["offset"]] * self.size
+
+        self.solution_vector = self.create_solution_vector()
+
+        self.x = self.solution_vector.create_polynom_vector()
         self.qubo_dict = self.create_qubo_matrix(self.x)
 
         self.sampleset = self.sampler.sample_qubo(
             self.qubo_dict, num_reads=self.options["num_reads"]
         )
         self.lowest_sol = self.sampleset.lowest()
-        return sol.decode_solution(self.lowest_sol.record[0][0])
+        return self.solution_vector.decode_solution(self.lowest_sol.record[0][0])
+
+    def create_solution_vector(self):
+        """initialize the soluion vector"""
+        return SolutionVector(
+            size=self.size,
+            nqbit=self.options["num_qbits"],
+            encoding=self.options["encoding"],
+            range=self.options["range"],
+            offset=self.options["offset"],
+        )
 
     def create_qubo_matrix(self, x, prec=None):
         """Create the QUBO dictionary requried by dwave solvers
@@ -98,7 +109,7 @@ class QUBOLS:
             _type_: _description_
         """
 
-        offset = self.A @ self.options["offset"]
+        cst_shift = self.A @ self.options["offset"]
 
         if isinstance(self.A, spsp.spmatrix):
             A = SparseMatrix(*self.A.shape, dict(self.A.todok().items()))
@@ -107,10 +118,11 @@ class QUBOLS:
 
         if isinstance(self.b, spsp.spmatrix):
             b = SparseMatrix(*self.b.shape, dict(self.b.todok().items()))
+            b -= cst_shift.reshape(-1, 1)
         else:
             b = Matrix(self.b)
-            b -= offset.reshape(-1, 1)
-        print(b.shape)
+            b -= cst_shift.reshape(-1, 1)
+
         polynom = x.T @ A.T @ A @ x - x.T @ A.T @ b - b.T @ A @ x + b.T @ b
         polynom = polynom[0]
         polynom = polynom.expand()

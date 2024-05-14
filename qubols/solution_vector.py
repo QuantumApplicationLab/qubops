@@ -19,6 +19,7 @@ class SolutionVector(object):
         self.encoding = encoding
         self.range = range
         self.offset = offset
+
         if not isinstance(self.range, list):
             self.range = [self.range] * size
 
