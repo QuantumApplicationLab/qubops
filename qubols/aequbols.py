@@ -31,12 +31,12 @@ class AEQUBOLS(QUBOLS):
             "num_reads": 100,
             "verbose": False,
         }
-
+        print(options)
         self.options = self._validate_solve_options(options, default_solve_options)
         self.sampler = self.options.pop("sampler")
 
         if self.options["encoding"] != RangedEfficientEncoding:
-            raise ValueError("AQUBOLS is only possible with RangedEfficientEncoding")
+            raise ValueError("AEQUBOLS is only possible with RangedEfficientEncoding")
 
     def solve(self, matrix: np.ndarray, vector: np.ndarray):
         """Solve the linear system
@@ -49,6 +49,8 @@ class AEQUBOLS(QUBOLS):
         Returns:
             _type_: _description_
         """
+        if not isinstance(matrix, np.ndarray):
+            matrix = matrix.todense()
 
         self.A = matrix
         self.b = vector
@@ -57,8 +59,8 @@ class AEQUBOLS(QUBOLS):
         if not isinstance(self.options["offset"], list):
             self.options["offset"] = [self.options["offset"]] * self.size
 
-        for _ in range(self.options["iterations"]):
-
+        for _iiter in range(self.options["iterations"]):
+            print(_iiter, self.options["offset"], self.options["range"])
             self.solution_vector = self.create_solution_vector()
             self.x = self.solution_vector.create_polynom_vector()
             self.qubo_dict = self.create_qubo_matrix(self.x)

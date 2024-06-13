@@ -65,6 +65,8 @@ class QUBOLS:
         Returns:
             _type_: _description_
         """
+        if not isinstance(matrix, np.ndarray):
+            matrix = matrix.todense()
 
         self.A = matrix
         self.b = vector
@@ -82,6 +84,7 @@ class QUBOLS:
             self.qubo_dict, num_reads=self.options["num_reads"]
         )
         self.lowest_sol = self.sampleset.lowest()
+
         return self.solution_vector.decode_solution(self.lowest_sol.record[0][0])
 
     def create_solution_vector(self):
