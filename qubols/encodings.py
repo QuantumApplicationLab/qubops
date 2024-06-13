@@ -27,6 +27,44 @@ class BaseQbitEncoding(object):
         return variables
 
 
+class RangedEfficientEncoding(BaseQbitEncoding):
+
+    def __init__(self, nqbit, range, offset, var_base_name):
+        super().__init__(nqbit, var_base_name)
+        self.base_exponent = 0
+        self.int_max = 2 ** (nqbit - 1) - 1
+
+        if not isinstance(range, list):
+            range = [range] * nqbit
+        self.max_absval = [r / self.int_max for r in range]
+
+        self.offset = offset
+
+    def create_polynom(self):
+        """
+        Create the polynoms of the expansion
+
+        Returns:
+            sympy expression
+        """
+        out = -(2 ** (self.nqbit - 1)) * self.variables[0] * self.max_absval[0]
+        for i in range(self.nqbit - 1):
+            out += 2 ** (i) * self.variables[i + 1] * self.max_absval[i]
+        return out
+
+    def decode_polynom(self, data):
+        """
+        Create the polynoms of the expansion
+
+        Returns:
+            sympy expression
+        """
+        out = -(2 ** (self.nqbit - 1)) * data[0] * self.max_absval[0]
+        for i in range(self.nqbit - 1):
+            out += 2 ** (i) * data[i + 1] * self.max_absval[i]
+        return out
+
+
 class EfficientEncoding(BaseQbitEncoding):
 
     def __init__(self, nqbit, var_base_name):
