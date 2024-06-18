@@ -1,5 +1,6 @@
 from sympy.matrices import Matrix
 import numpy as np
+from .encodings import RangedEfficientEncoding
 
 
 class SolutionVector(object):
@@ -36,12 +37,14 @@ class SolutionVector(object):
             list[RealEncoded]:
         """
         encoded_reals = []
+        is_ranged_encoding = (self.encoding == RangedEfficientEncoding)
         for i in range(self.size):
             var_base_name = self.base_name + "_%03d" % (i + 1)
-            encoded_reals.append(
-                self.encoding(self.nqbit, self.range[i], self.offset[i], var_base_name)
-            )
-
+            if is_ranged_encoding:
+                args = (self.nqbit, self.range[i], self.offset[i], var_base_name)
+            else:
+                args = (self.nqbit, var_base_name)
+            encoded_reals.append(self.encoding(*args))
         return encoded_reals
 
     def create_polynom_vector(self):
