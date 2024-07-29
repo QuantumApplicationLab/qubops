@@ -202,7 +202,7 @@ class PositiveQbitEncoding(BaseQbitEncoding):
 
     def decode_polynom(self, data):
         out = 0.0
-        for i in range(self.nqbit // 2):
+        for i in range(self.nqbit):
             out += 2**i * data[i]
-            out -= 2**i * data[self.nqbit // 2 + i]
+            # out -= 2**i * data[self.nqbit // 2 + i]
         return out
