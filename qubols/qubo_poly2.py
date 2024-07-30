@@ -95,8 +95,8 @@ class QUBO_POLY2:
             self.qubo_dict, num_reads=self.options["num_reads"]
         )
         self.lowest_sol = self.sampleset.lowest()
-
-        return self.solution_vector.decode_solution(self.lowest_sol.record[0][0])
+        idx, vars, data = self.extract_data(self.lowest_sol)
+        return self.solution_vector.decode_solution(data)
 
     def create_solution_vector(self):
         """initialize the soluion vector"""
@@ -108,7 +108,7 @@ class QUBO_POLY2:
             offset=self.options["offset"],
         )
 
-    def create_qubo_matrix(self, x, prec=None):
+    def create_qubo_matrix(self, x, strength=100, prec=None):
         """Create the QUBO dictionary requried by dwave solvers
         to solve the polynomial equation P0 + P1 x + P2 x x = 0
 
@@ -135,7 +135,7 @@ class QUBO_POLY2:
 
         x2 = x @ x.T
         for ip, p2 in enumerate(self.P2):
-            polynom[ip] += np.sum(p2 @ x2)
+            polynom[ip] += np.sum(np.multiply(p2, x2))
 
         polynom = polynom.T @ polynom
 
@@ -143,7 +143,7 @@ class QUBO_POLY2:
         polynom = polynom.expand()
         polynom = polynom.as_ordered_terms()
         polynom = self.create_poly_dict(polynom, prec=prec)
-        bqm = dimod.make_quadratic(polynom, strength=5, vartype=dimod.BINARY)
+        bqm = dimod.make_quadratic(polynom, strength=strength, vartype=dimod.BINARY)
 
         return bqm
 
@@ -161,7 +161,6 @@ class QUBO_POLY2:
 
         for term in polynom:
             m = term.args
-            print(m)
             if len(m) == 0:
                 continue
 
@@ -205,3 +204,20 @@ class QUBO_POLY2:
                     nremoved += 1
             print("Removed %d elements" % nremoved)
             return out_cpy
+
+    @staticmethod
+    def extract_data(sol):
+        """Extracts the data from the solution
+
+        Args:
+            sol (_type_): _description_
+        """
+        # extract the data of the original variables
+        idx, vars = [], []
+        for ix, s in enumerate(sol.variables):
+            if len(s.split("*")) == 1:
+                idx.append(ix)
+                vars.append(s)
+
+        data = sol.record[0][0]
+        return idx, vars, data[idx]
