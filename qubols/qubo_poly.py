@@ -83,7 +83,7 @@ class QUBO_POLY:
 
         self.qubo_dict = self.create_qubo_matrix(self.x)
 
-        self.sampleset = self.sampler.sample_qubo(
+        self.sampleset = self.sampler.sample(
             self.qubo_dict, num_reads=self.options["num_reads"]
         )
         self.lowest_sol = self.sampleset.lowest()

@@ -81,7 +81,7 @@ class QUBO_POLY2:
         self.P1 = matrix_p1
         self.P2 = matrix_p2
 
-        self.size = self.P1[0]
+        self.size = self.P1.shape[0]
 
         if not isinstance(self.options["offset"], list):
             self.options["offset"] = [self.options["offset"]] * self.size
@@ -91,7 +91,7 @@ class QUBO_POLY2:
 
         self.qubo_dict = self.create_qubo_matrix(self.x)
 
-        self.sampleset = self.sampler.sample_qubo(
+        self.sampleset = self.sampler.sample(
             self.qubo_dict, num_reads=self.options["num_reads"]
         )
         self.lowest_sol = self.sampleset.lowest()
