@@ -108,9 +108,14 @@ class QUBO_POLY:
         """
         self.num_equations = self.matrices[1].shape[0]
         polynom = Matrix([0] * self.num_equations)
-        for matrix in self.matrices:
+
+        for imat, matrix in enumerate(self.matrices):
+
             for idx, val in zip(matrix.coords.T, matrix.data):
-                polynom[idx[0]] += val * x[idx[1:]].prod()
+                if imat == 0:
+                    polynom[idx[0]] += val
+                else:
+                    polynom[idx[0]] += val * x[idx[1:]].prod()
         return polynom
 
     def create_qubo_matrix(self, x, strength=100, prec=None):
