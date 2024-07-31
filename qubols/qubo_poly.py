@@ -1,10 +1,9 @@
-from sympy.matrices import Matrix, SparseMatrix
+from sympy.matrices import Matrix
 import numpy as np
 from qubols.encodings import RangedEfficientEncoding
 from typing import Optional, Union, Dict
 import neal
 import dimod
-import scipy.sparse as spsp
 from .solution_vector import SolutionVector
 
 
@@ -80,6 +79,7 @@ class QUBO_POLY:
 
         self.solution_vector = self.create_solution_vector()
         self.x = self.solution_vector.create_polynom_vector()
+        self.extract_all_variables()
 
         self.qubo_dict = self.create_qubo_matrix(self.x)
 
@@ -89,6 +89,15 @@ class QUBO_POLY:
         self.lowest_sol = self.sampleset.lowest()
         idx, vars, data = self.extract_data(self.lowest_sol)
         return self.solution_vector.decode_solution(data)
+
+    def extract_all_variables(self):
+        """Extracs all the variable names and expressions"""
+        self.all_vars = []
+        self.all_expr = []
+        for var in self.x:
+            expr = [(str(k), v) for k, v in var.as_coefficients_dict().items()]
+            self.all_expr.append(expr)
+            self.all_vars += [str(k) for k in var.as_coefficients_dict().keys()]
 
     def create_solution_vector(self):
         """initialize the soluion vector"""
@@ -202,8 +211,7 @@ class QUBO_POLY:
             print("Removed %d elements" % nremoved)
             return out_cpy
 
-    @staticmethod
-    def extract_data(sol):
+    def extract_data(self, sol):
         """Extracts the data from the solution
 
         Args:
@@ -212,7 +220,10 @@ class QUBO_POLY:
         # extract the data of the original variables
         idx, vars = [], []
         for ix, s in enumerate(sol.variables):
-            if len(s.split("*")) == 1:
+            # if s.startswith("slack"):
+            #     continue
+            # if len(s.split("*")) == 1:
+            if s in self.all_vars:
                 idx.append(ix)
                 vars.append(s)
 
