@@ -34,7 +34,7 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         self.sampler = self.options.pop("sampler")
         self.mixed_solution_vectors = mixed_solution_vectors
 
-    def create_bqm(self, matrices):
+    def create_bqm(self, matrices, strength=10):
         """Create the bqm from the matrices
 
         Args:
@@ -50,7 +50,7 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         self.x = self.mixed_solution_vectors.create_polynom_vector()
         self.extract_all_variables()
 
-        return self.create_qubo_matrix(self.x)
+        return self.create_qubo_matrix(self.x, strength=strength)
 
     def sample_bqm(self, bqm):
         """Sample the bqm"""
@@ -86,7 +86,7 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         self.lowest_sol = self.sampleset.lowest()
 
         # sample the systen and return the solution
-        return self.decode_lowest_solution(self.lowest_sol)
+        return self.decode_solution(self.lowest_sol)
 
     def extract_all_variables(self):
         """Extracs all the variable names and expressions"""
@@ -115,7 +115,7 @@ class QUBO_POLY_MIXED(QUBO_POLY):
                     polynom[idx[0]] += val * x[idx[1:]].prod()
         return polynom
 
-    def create_qubo_matrix(self, x, strength=100, prec=None):
+    def create_qubo_matrix(self, x, strength=10, prec=None):
         """Create the QUBO dictionary requried by dwave solvers
         to solve the polynomial equation P0 + P1 x + P2 x x = 0
 
@@ -208,9 +208,6 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         # extract the data of the original variables
         idx, vars = [], []
         for ix, s in enumerate(sol.variables):
-            # if s.startswith("slack"):
-            #     continue
-            # if len(s.split("*")) == 1:
             if s in self.all_vars:
                 idx.append(ix)
                 vars.append(s)
