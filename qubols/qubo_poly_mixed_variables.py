@@ -52,10 +52,10 @@ class QUBO_POLY_MIXED(QUBO_POLY):
 
         return self.create_qubo_matrix(self.x, strength=strength)
 
-    def sample_bqm(self, bqm):
+    def sample_bqm(self, bqm, num_reads):
         """Sample the bqm"""
 
-        return self.sampler.sample(bqm, num_reads=self.options["num_reads"])
+        return self.sampler.sample(bqm, num_reads=num_reads)
 
     def decode_solution(self, solution):
         """_summary_
@@ -82,7 +82,9 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         self.qubo_dict = self.create_bqm(matrices)
 
         # sample the bqm
-        self.sampleset = self.sample_bqm(self.qubo_dict)
+        self.sampleset = self.sample_bqm(
+            self.qubo_dict, num_reads=self.options["num_reads"]
+        )
         self.lowest_sol = self.sampleset.lowest()
 
         # sample the systen and return the solution

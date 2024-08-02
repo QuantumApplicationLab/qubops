@@ -1,5 +1,6 @@
 from sympy.matrices import Matrix
 import numpy as np
+from copy import deepcopy
 from .encodings import RangedEfficientEncoding
 
 
@@ -37,7 +38,7 @@ class SolutionVector(object):
             list[RealEncoded]:
         """
         encoded_reals = []
-        is_ranged_encoding = (self.encoding == RangedEfficientEncoding)
+        is_ranged_encoding = self.encoding == RangedEfficientEncoding
         for i in range(self.size):
             var_base_name = self.base_name + "_%03d" % (i + 1)
             if is_ranged_encoding:
@@ -66,3 +67,41 @@ class SolutionVector(object):
             local_data = data[i * self.nqbit : (i + 1) * self.nqbit]
             sol.append(real.decode_polynom(local_data))
         return np.array(sol) + np.array(self.offset)
+
+
+class SolutionVector_V2(SolutionVector):
+
+    def __init__(self, size, encoding, base_name="x"):
+        """_summary_
+
+        Args:
+            size (_type_): _description_
+            encoding (_type_): _description_
+            base_name (str)
+
+        Returns:
+            _type_: _description_
+        """
+
+        self.size = size
+        self.base_name = base_name
+        self.encoding = encoding
+
+        self.encoded_reals = self.create_encoding()
+
+    def create_encoding(self):
+        """Create the eocnding for all the unknowns
+
+
+        Returns:
+            list[RealEncoded]:
+        """
+        encoded_reals = []
+
+        for i in range(self.size):
+            var_base_name = self.base_name + "_%03d" % (i + 1)
+            x = deepcopy(self.encoding)
+            x.set_var_base_name(var_base_name)
+            x.variables = x.create_variable()
+            encoded_reals.append(x)
+        return encoded_reals

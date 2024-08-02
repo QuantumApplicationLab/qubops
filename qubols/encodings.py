@@ -1,4 +1,6 @@
 from sympy import Symbol
+import itertools
+import numpy as np
 
 
 class BaseQbitEncoding(object):
@@ -15,6 +17,14 @@ class BaseQbitEncoding(object):
         self.var_base_name = var_base_name
         self.variables = self.create_variable()
 
+    def set_var_base_name(self, var_base_name):
+        """set the variable base name
+
+        Args:
+            var_base_name (_type_): _description_
+        """
+        self.var_base_name = var_base_name
+
     def create_variable(self):
         """Create all the variabes/qbits required for the expansion
 
@@ -25,6 +35,32 @@ class BaseQbitEncoding(object):
         for i in range(self.nqbit):
             variables.append(Symbol(self.var_base_name + "_%03d" % (i + 1)))
         return variables
+
+    def create_polynom(self):
+        raise NotImplementedError("Implement create_polynom")
+
+    def decode_polynom(self, data):
+        raise NotImplementedError("Implement decode_polynom")
+
+    def get_max_value(self):
+        """Get the maximum value of the encoding
+
+        Returns:
+            float: max value
+        """
+        return self.decode_polynom([1] * self.nqbit)
+
+    def get_possible_values(self):
+        """get all the posible values encoded
+
+        Returns:
+            _type_: _description_
+        """
+
+        values = []
+        for data in itertools.product([0, 1], repeat=self.nqbit):
+            values.append(self.decode_polynom(list(data)[::-1]))
+        return values
 
 
 class RangedEfficientEncoding(BaseQbitEncoding):
@@ -204,5 +240,45 @@ class PositiveQbitEncoding(BaseQbitEncoding):
         out = 0.0
         for i in range(self.nqbit):
             out += 2**i * data[i]
-            # out -= 2**i * data[self.nqbit // 2 + i]
+        return out
+
+
+class DiscreteValuesEncoding(BaseQbitEncoding):
+
+    def __init__(self, values, nqbit, var_base_name):
+        super().__init__(nqbit, var_base_name)
+        self.discrete_values = values
+        self.coefs = self.get_coefficients()
+
+    def get_coefficients(self):
+        """get the lstqst coefficients"""
+        nvalues = len(self.discrete_values)
+        nqbit = self.nqbit
+        A = np.zeros((nvalues, nqbit + 1))
+        c = [1] + [2**i for i in range(nqbit)]
+        for idx in range(nvalues):
+            row = [1] + [float(i) for i in np.binary_repr(idx, width=nqbit)][::-1]
+            A[idx, :] = row
+        A = A * c
+
+        coefs, res, rank, s = np.linalg.lstsq(A, self.discrete_values)
+
+        return coefs
+
+    def create_polynom(self):
+        """
+        Create the polynoms of the expansion
+
+        Returns:
+            sympy expression
+        """
+        out = self.coefs[0]
+        for i in range(self.nqbit):
+            out += self.coefs[i + 1] * 2**i * self.variables[i]
+        return out
+
+    def decode_polynom(self, data):
+        out = self.coefs[0]
+        for i in range(self.nqbit):
+            out += self.coefs[i + 1] * 2**i * data[i]
         return out
