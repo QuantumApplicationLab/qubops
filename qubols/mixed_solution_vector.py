@@ -1,5 +1,6 @@
 from sympy.matrices import Matrix
 import numpy as np
+from copy import deepcopy
 from .encodings import RangedEfficientEncoding
 
 
@@ -85,3 +86,41 @@ class MixedSolutionVector(object):
             sol.append(list(sv.decode_solution(sv_data)))
             idx_start += sv.size
         return sol
+
+
+class MixedSolutionVector_V2(MixedSolutionVector):
+
+    def __init__(self, solution_vectors):
+        """init the mixed solution vector
+
+        Args:
+            solution_vectors (List): A list of SolutionVector instances
+        """
+        self.solution_vectors = solution_vectors
+        self.nqbit = []
+        self.idx_start_data = self.get_indexes_data()
+        self.encoded_reals = self.create_encoding()
+
+    def create_encoding(self):
+        """Create the enconding for all the unknowns
+
+
+        Returns:
+            list[RealEncoded]:
+        """
+        encoded_reals = []
+
+        idx_vars = 0
+        for sol_vec in self.solution_vectors:
+
+            for i in range(sol_vec.size):
+                var_base_name = sol_vec.base_name + "_%03d" % (idx_vars + 1)
+                idx_vars += 1
+
+                x = deepcopy(sol_vec.encoding)
+                x.set_var_base_name(var_base_name)
+                x.variables = x.create_variable()
+                encoded_reals.append(x)
+                self.nqbit.append(sol_vec.nqbit)
+
+        return encoded_reals

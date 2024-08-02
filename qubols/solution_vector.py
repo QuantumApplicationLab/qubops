@@ -86,7 +86,8 @@ class SolutionVector_V2(SolutionVector):
         self.size = size
         self.base_name = base_name
         self.encoding = encoding
-
+        self.nqbit = encoding.nqbit
+        self.offset = 0.0
         self.encoded_reals = self.create_encoding()
 
     def create_encoding(self):
