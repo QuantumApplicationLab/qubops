@@ -62,6 +62,25 @@ class BaseQbitEncoding(object):
             values.append(self.decode_polynom(list(data)[::-1]))
         return values
 
+    def find_closest(self, float):
+        """finds the closest possible encoded number to float
+
+        Args:
+            float (_type_): _description_
+        """
+
+        min_diff = 1e12
+        closest_value = None
+        binary_encoding = None
+        for data in itertools.product([0, 1], repeat=self.nqbit):
+            val = self.decode_polynom(list(data)[::-1])
+            if np.abs(val - float) < min_diff:
+                min_diff = np.abs(val - float)
+                closest_value = val
+                binary_encoding = list(data)[::-1]
+
+        return closest_value, binary_encoding
+
 
 class RangedEfficientEncoding(BaseQbitEncoding):
 
@@ -83,7 +102,10 @@ class RangedEfficientEncoding(BaseQbitEncoding):
         Returns:
             sympy expression
         """
-        out = -(2 ** (self.nqbit - 1)) * self.variables[0] * self.max_absval[0]
+        out = (
+            self.offset
+            - (2 ** (self.nqbit - 1)) * self.variables[0] * self.max_absval[0]
+        )
         for i in range(self.nqbit - 1):
             out += 2 ** (i) * self.variables[i + 1] * self.max_absval[i]
         return out
@@ -95,7 +117,7 @@ class RangedEfficientEncoding(BaseQbitEncoding):
         Returns:
             sympy expression
         """
-        out = -(2 ** (self.nqbit - 1)) * data[0] * self.max_absval[0]
+        out = self.offset - (2 ** (self.nqbit - 1)) * data[0] * self.max_absval[0]
         for i in range(self.nqbit - 1):
             out += 2 ** (i) * data[i + 1] * self.max_absval[i]
         return out
@@ -221,8 +243,10 @@ class RealUnitQbitEncoding(BaseQbitEncoding):
 
 class PositiveQbitEncoding(BaseQbitEncoding):
 
-    def __init__(self, nqbit, var_base_name):
+    def __init__(self, nqbit, var_base_name, offset=0, step=1):
         super().__init__(nqbit, var_base_name)
+        self.offset = offset
+        self.step = step
 
     def create_polynom(self):
         """
@@ -231,15 +255,15 @@ class PositiveQbitEncoding(BaseQbitEncoding):
         Returns:
             sympy expression
         """
-        out = 0.0
+        out = self.offset
         for i in range(self.nqbit):
-            out += 2**i * self.variables[i]
+            out += self.step * 2**i * self.variables[i]
         return out
 
     def decode_polynom(self, data):
-        out = 0.0
+        out = self.offset
         for i in range(self.nqbit):
-            out += 2**i * data[i]
+            out += self.step * 2**i * data[i]
         return out
 
 
@@ -249,6 +273,7 @@ class DiscreteValuesEncoding(BaseQbitEncoding):
         super().__init__(nqbit, var_base_name)
         self.discrete_values = values
         self.coefs = self.get_coefficients()
+        self.offset = 0
 
     def get_coefficients(self):
         """get the lstqst coefficients"""

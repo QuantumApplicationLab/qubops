@@ -66,7 +66,7 @@ class SolutionVector(object):
         for i, real in enumerate(self.encoded_reals):
             local_data = data[i * self.nqbit : (i + 1) * self.nqbit]
             sol.append(real.decode_polynom(local_data))
-        return np.array(sol) + np.array(self.offset)
+        return np.array(sol)  # + np.array(self.offset)
 
 
 class SolutionVector_V2(SolutionVector):
@@ -87,7 +87,7 @@ class SolutionVector_V2(SolutionVector):
         self.base_name = base_name
         self.encoding = encoding
         self.nqbit = encoding.nqbit
-        self.offset = 0.0
+        self.offset = encoding.offset
         self.encoded_reals = self.create_encoding()
 
     def create_encoding(self):

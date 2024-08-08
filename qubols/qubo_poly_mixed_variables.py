@@ -1,10 +1,10 @@
 from sympy.matrices import Matrix
 import numpy as np
 from typing import Optional, Union, Dict
-import neal
+from dwave.samplers import SimulatedAnnealingSampler
 import dimod
 from .qubo_poly import QUBO_POLY
-from .mixed_solution_vector import MixedSolutionVector
+from .mixed_solution_vector import MixedSolutionVector_V2 as MixedSolutionVector
 
 
 class QUBO_POLY_MIXED(QUBO_POLY):
@@ -26,7 +26,7 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         """
 
         default_solve_options = {
-            "sampler": neal.SimulatedAnnealingSampler(),
+            "sampler": SimulatedAnnealingSampler(),
             "num_reads": 100,
             "verbose": False,
         }
@@ -55,18 +55,11 @@ class QUBO_POLY_MIXED(QUBO_POLY):
     def sample_bqm(self, bqm, num_reads):
         """Sample the bqm"""
 
-        return self.sampler.sample(bqm, num_reads=num_reads)
+        sampleset = self.sampler.sample(bqm, num_reads=num_reads)
+        self.create_variables_mapping(sampleset)
+        return sampleset
 
-    def decode_solution(self, solution):
-        """_summary_
-
-        Returns:
-            _type_: _description_
-        """
-        idx, vars, data = self.extract_data(solution)
-        return self.mixed_solution_vectors.decode_solution(data)
-
-    def solve(self, matrices):
+    def solve(self, matrices, strength=10):
         """Solve the linear system
 
         Args:
@@ -79,7 +72,7 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         """
 
         # create the bqm
-        self.qubo_dict = self.create_bqm(matrices)
+        self.qubo_dict = self.create_bqm(matrices, strength=strength)
 
         # sample the bqm
         self.sampleset = self.sample_bqm(
@@ -88,7 +81,7 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         self.lowest_sol = self.sampleset.lowest()
 
         # sample the systen and return the solution
-        return self.decode_solution(self.lowest_sol)
+        return self.decode_solution(self.lowest_sol.record[0][0])
 
     def extract_all_variables(self):
         """Extracs all the variable names and expressions"""
@@ -201,18 +194,56 @@ class QUBO_POLY_MIXED(QUBO_POLY):
             print("Removed %d elements" % nremoved)
             return out_cpy
 
-    def extract_data(self, sol):
-        """Extracts the data from the solution
+    def decode_solution(self, data):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
+        return self.mixed_solution_vectors.decode_solution(data[self.index_variables])
+
+    def create_variables_mapping(self, sol):
+        """generates the index of variables in the solution vector
 
         Args:
             sol (_type_): _description_
         """
         # extract the data of the original variables
-        idx, vars = [], []
+        self.index_variables, self.mapped_variables = [], []
         for ix, s in enumerate(sol.variables):
             if s in self.all_vars:
-                idx.append(ix)
-                vars.append(s)
+                self.index_variables.append(ix)
+                self.mapped_variables.append(s)
 
-        data = sol.record[0][0]
-        return idx, vars, data[idx]
+    def compute_energy(self, vector, bqm):
+        """Compue the QUBO energy of the vecto containing the solution of the initial problem
+
+        Args:
+            vector (_type_): _description_
+        """
+        closest_vec = []
+        bin_encoding_vector = []
+        encoded_variables = []
+        for val, svec in zip(vector, self.mixed_solution_vectors.encoded_reals):
+            closest_val, bin_encoding = svec.find_closest(val)
+            closest_vec.append(closest_val)
+            bin_encoding_vector += bin_encoding
+            encoded_variables += [str(sv) for sv in svec.variables]
+
+        bqm_input_variables = {}
+        for v in bqm.variables:
+            if v in encoded_variables:
+                idx = encoded_variables.index(v)
+                bqm_input_variables[v] = bin_encoding_vector[idx]
+            else:
+                var0, var1 = v.split("*")
+                idx0 = encoded_variables.index(var0)
+                idx1 = encoded_variables.index(var1)
+                val0, val1 = bin_encoding_vector[idx0], bin_encoding_vector[idx1]
+                bqm_input_variables[v] = val0 * val1
+
+        return (
+            closest_vec,
+            (bin_encoding_vector, encoded_variables),
+            bqm_input_variables,
+        ), bqm.energy(bqm_input_variables)
