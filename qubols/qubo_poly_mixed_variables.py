@@ -236,11 +236,16 @@ class QUBO_POLY_MIXED(QUBO_POLY):
                 idx = encoded_variables.index(v)
                 bqm_input_variables[v] = bin_encoding_vector[idx]
             else:
-                var0, var1 = v.split("*")
-                idx0 = encoded_variables.index(var0)
-                idx1 = encoded_variables.index(var1)
-                val0, val1 = bin_encoding_vector[idx0], bin_encoding_vector[idx1]
-                bqm_input_variables[v] = val0 * val1
+                var_tmp = v.split("*")
+                itmp = 0
+                for vtmp in var_tmp:
+                    idx = encoded_variables.index(vtmp)
+                    val = bin_encoding_vector[idx]
+                    if itmp == 0:
+                        bqm_input_variables[v] = val
+                        itmp = 1
+                    else:
+                        bqm_input_variables[v] *= val
 
         return (
             closest_vec,

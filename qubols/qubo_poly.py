@@ -258,11 +258,16 @@ class QUBO_POLY:
                 idx = encoded_variables.index(v)
                 bqm_input_variables[v] = bin_encoding_vector[idx]
             else:
-                var0, var1 = v.split("*")
-                idx0 = encoded_variables.index(var0)
-                idx1 = encoded_variables.index(var1)
-                val0, val1 = bin_encoding_vector[idx0], bin_encoding_vector[idx1]
-                bqm_input_variables[v] = val0 * val1
+                var_tmp = v.split("*")
+                itmp = 0
+                for vtmp in var_tmp:
+                    idx = encoded_variables.index(vtmp)
+                    val = bin_encoding_vector[idx]
+                    if itmp == 0:
+                        bqm_input_variables[v] = val
+                        itmp = 1
+                    else:
+                        bqm_input_variables[v] *= val
 
         return (
             closest_vec,
@@ -270,3 +275,30 @@ class QUBO_POLY:
             encoded_variables,
             bqm_input_variables,
         ), bqm.energy(bqm_input_variables)
+
+    def verify_quadratic_constraints(self, sampleset):
+        """check if quadratic constraints are respected or not
+
+        Args:
+            sampleset (_type_): _description_
+        """
+        var = sampleset.lowest().variables
+        data = np.array(sampleset.lowest().record[0][0])
+
+        for v, d in zip(var, data):
+            if v not in self.mapped_variables:
+                var_tmp = v.split("*")
+                itmp = 0
+                for vtmp in var_tmp:
+                    idx = self.index_variables[self.mapped_variables.index(vtmp)]
+                    if itmp == 0:
+                        dcomposite = data[idx]
+                        itmp = 1
+                    else:
+                        dcomposite *= data[idx]
+                if d != dcomposite:
+                    print("Error in the quadratic contratints")
+                    print("%s = %d" % (v, d))
+                    for vtmp in var_tmp:
+                        idx = self.index_variables[self.mapped_variables.index(vtmp)]
+                        print("%s = %d" % (vtmp, data[idx]))
