@@ -81,6 +81,12 @@ class BaseQbitEncoding(object):
 
         return closest_value, binary_encoding
 
+    def get_average_precision(self):
+        """get the mean precision on the encoded variables"""
+        vals = self.get_possible_values()
+        z = vals - np.roll(vals, 1)
+        return np.mean(z[1:])
+
 
 class RangedEfficientEncoding(BaseQbitEncoding):
 
