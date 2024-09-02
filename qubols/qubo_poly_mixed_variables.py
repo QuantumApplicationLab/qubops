@@ -1,4 +1,5 @@
 from sympy.matrices import Matrix
+from copy import deepcopy
 import numpy as np
 from typing import Optional, Union, Dict
 from dwave.samplers import SimulatedAnnealingSampler
@@ -30,7 +31,10 @@ class QUBO_POLY_MIXED(QUBO_POLY):
             "num_reads": 100,
             "verbose": False,
         }
-        self.options = self._validate_solve_options(options, default_solve_options)
+
+        self.options = self._validate_solve_options(
+            deepcopy(options), default_solve_options
+        )
         self.sampler = self.options.pop("sampler")
         self.mixed_solution_vectors = mixed_solution_vectors
 
@@ -54,7 +58,7 @@ class QUBO_POLY_MIXED(QUBO_POLY):
 
     def sample_bqm(self, bqm, num_reads):
         """Sample the bqm"""
-
+        print(self.sampler)
         sampleset = self.sampler.sample(bqm, num_reads=num_reads)
         self.create_variables_mapping(sampleset)
         return sampleset
