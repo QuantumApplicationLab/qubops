@@ -1,7 +1,8 @@
 from sympy.matrices import Matrix
+from sympy.polys import Poly
 from copy import deepcopy
 import numpy as np
-from typing import Optional, Union, Dict
+from typing import Optional, Union, Dict, Tuple, List
 from dwave.samplers import SimulatedAnnealingSampler
 import dimod
 from .qubo_poly import QUBO_POLY
@@ -15,17 +16,15 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         mixed_solution_vectors: MixedSolutionVector,
         options: Optional[Union[Dict, None]] = None,
     ):
-        """Polynomial of degree 2 Solver using QUBO
-
-        Solve the following equation
+        """Solve the following equation
 
         ..math:
-            P_0 + P_1 x + P_2 x \otimes x = 0
+            P_0 + P_1 x + P_2 x^2 + ... + P_n x^n = 0
 
         Args:
-            options: dictionary of options for solving the linear system
+            mixed_solution_vectors (MixedSolutionVector): Solution vector for the varialbes
+            options (Optional[Union[Dict, None]], optional): dictionary of options for solving the system. Defaults to None.
         """
-
         default_solve_options = {
             "sampler": SimulatedAnnealingSampler(),
             "num_reads": 100,
@@ -38,11 +37,12 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         self.sampler = self.options.pop("sampler")
         self.mixed_solution_vectors = mixed_solution_vectors
 
-    def create_bqm(self, matrices, strength=10):
+    def create_bqm(self, matrices: Tuple, strength: float = 10) -> dimod.BQM:
         """Create the bqm from the matrices
 
         Args:
             matrices (tuple): matrix of the system
+            stregth (float): couplign stregth for the substitution. Default 10
 
         Returns:
             dimod.bqm: binary quadratic model
@@ -56,23 +56,22 @@ class QUBO_POLY_MIXED(QUBO_POLY):
 
         return self.create_qubo_matrix(self.x, strength=strength)
 
-    def sample_bqm(self, bqm, num_reads):
+    def sample_bqm(self, bqm: dimod.bqm, num_reads: int) -> dimod.SampleSet:
         """Sample the bqm"""
         print(self.sampler)
         sampleset = self.sampler.sample(bqm, num_reads=num_reads)
         self.create_variables_mapping(sampleset)
         return sampleset
 
-    def solve(self, matrices, strength=10):
-        """Solve the linear system
+    def solve(self, matrices: Tuple, strength: float = 10) -> List:
+        """Solve the system of equations
 
         Args:
-            sampler (_type_, optional): _description_. Defaults to neal.SimulatedAnnealingSampler().
-            encoding (_type_, optional): _description_. Defaults to RealUnitQbitEncoding.
-            nqbit (int, optional): _description_. Defaults to 10.
+            matrices (Tuple): Matrices of the system
+            strength (float, optional): Strength of the susbtitution. Defaults to 10.
 
         Returns:
-            _type_: _description_
+            List: Solution of the system
         """
 
         # create the bqm
@@ -96,11 +95,14 @@ class QUBO_POLY_MIXED(QUBO_POLY):
             self.all_expr.append(expr)
             self.all_vars += [str(k) for k in var.as_coefficients_dict().keys()]
 
-    def create_polynom(self, x: np.ndarray):
+    def create_polynom(self, x: np.ndarray) -> Poly:
         """Creates the polynom from the matrices
 
         Args:
-            x (_type_): _description_
+            x (np.ndarray):
+
+        Returns:
+            Poly: a polynom
         """
         self.num_equations = self.matrices[1].shape[0]
         polynom = Matrix([0] * self.num_equations)
@@ -114,20 +116,20 @@ class QUBO_POLY_MIXED(QUBO_POLY):
                     polynom[idx[0]] += val * x[idx[1:]].prod()
         return polynom
 
-    def create_qubo_matrix(self, x, strength=10, prec=None):
+    def create_qubo_matrix(
+        self, x: np.ndarray, strength: float = 10, prec: Union[float, None] = None
+    ) -> dimod.BQM:
         """Create the QUBO dictionary requried by dwave solvers
-        to solve the polynomial equation P0 + P1 x + P2 x x = 0
-
+        to solve the polynomial equation P0 + P1 x + P2 x^2 + ... = 0
 
         Args:
-            Anp (np.array): matrix of the linear system
-            bnp (np.array): righ hand side of the linear system
-            x (sympy.Matrix): unknown
+            x (np.ndarray): x vector
+            strength (int, optional): strength of the substitution. Defaults to 10.
+            prec (floa, optional):precision. Defaults to None.
 
         Returns:
-            _type_: _description_
+            dimod.BQM: Binary quadratic model
         """
-
         polynom = self.create_polynom(np.array(x))
 
         polynom = polynom.T @ polynom
@@ -141,14 +143,15 @@ class QUBO_POLY_MIXED(QUBO_POLY):
         return bqm
 
     @staticmethod
-    def create_poly_dict(polynom, prec=None):
+    def create_poly_dict(polynom: Poly, prec: Union[float, None] = None) -> Dict:
         """Creates a dict from the sympy polynom
 
         Args:
-            polynom (_type_): _description_
+            polynom (Poly): polynom of the system
+            prec (float,None): precision of the terms to keep
 
         Returns:
-            Dict: _description_
+            Dict: dictionary represetnation of the polynom
         """
         out = dict()
 
@@ -198,19 +201,22 @@ class QUBO_POLY_MIXED(QUBO_POLY):
             print("Removed %d elements" % nremoved)
             return out_cpy
 
-    def decode_solution(self, data):
-        """_summary_
+    def decode_solution(self, data: np.ndarray) -> np.ndarray:
+        """Decodes the solution vector
+
+        Args:
+            data (np.ndarray): sampled values
 
         Returns:
-            _type_: _description_
+            np.ndarray: numerical values for the solution
         """
         return self.mixed_solution_vectors.decode_solution(data[self.index_variables])
 
-    def create_variables_mapping(self, sol):
+    def create_variables_mapping(self, sol: dimod.SampleSet):
         """generates the index of variables in the solution vector
 
         Args:
-            sol (_type_): _description_
+            sol (dimod.Sampleset): sampleset from the sampler
         """
         # extract the data of the original variables
         self.index_variables, self.mapped_variables = [], []
@@ -219,11 +225,11 @@ class QUBO_POLY_MIXED(QUBO_POLY):
                 self.index_variables.append(ix)
                 self.mapped_variables.append(s)
 
-    def compute_energy(self, vector, bqm):
-        """Compue the QUBO energy of the vecto containing the solution of the initial problem
+    def compute_energy(self, vector: np.ndarray, bqm: dimod.BQM) -> Tuple:
+        """Compue the QUBO energy of the vector containing the solution of the initial problem
 
         Args:
-            vector (_type_): _description_
+            vector (np.ndarray): solution of the problem
         """
         closest_vec = []
         bin_encoding_vector = []
