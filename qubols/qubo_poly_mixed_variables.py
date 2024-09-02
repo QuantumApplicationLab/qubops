@@ -58,7 +58,6 @@ class QUBO_POLY_MIXED(QUBO_POLY):
 
     def sample_bqm(self, bqm: dimod.bqm, num_reads: int) -> dimod.SampleSet:
         """Sample the bqm"""
-        print(self.sampler)
         sampleset = self.sampler.sample(bqm, num_reads=num_reads)
         self.create_variables_mapping(sampleset)
         return sampleset
