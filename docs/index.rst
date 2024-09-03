@@ -1,9 +1,9 @@
-.. qubols documentation master file, created by
+.. qubops documentation master file, created by
    sphinx-quickstart on Wed May  5 22:45:36 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to qubols's documentation!
+Welcome to qubops's documentation!
 ==========================================================
 
 .. toctree::

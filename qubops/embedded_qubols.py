@@ -1,15 +1,15 @@
 import numpy as np
-from qubols.encodings import RealUnitQbitEncoding
+from qubops.encodings import RealUnitQbitEncoding
 from typing import Optional, Union, Dict
 import neal
 import dwave_networkx as dnx
 from minorminer import find_embedding
 from dwave.embedding import embed_qubo, majority_vote, chain_break_frequency
 from .solution_vector import SolutionVector
-from .qubols import QUBOLS
+from .qubops import QUBOPS
 
 
-class EmbeddedQUBOLS(QUBOLS):
+class EmbeddedQUBOPS(QUBOPS):
 
     def __init__(self, options: Optional[Union[Dict, None]] = None):
         """Linear Solver using QUBO

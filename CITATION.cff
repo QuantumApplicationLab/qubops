@@ -1,7 +1,7 @@
 # YAML 1.2
 ---
 cff-version: "1.1.0"
-title: "qubols"
+title: "qubops"
 authors:
   -
     family-names: Renaud

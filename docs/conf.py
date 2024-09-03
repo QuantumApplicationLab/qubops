@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "qubols"
+project = "qubops"
 copyright = "2022, Netherlands eScience Center"
 author = "Nicolas Renaud"
 
@@ -61,7 +61,7 @@ todo_include_todos = False
 
 # -- Use autoapi.extension to run sphinx-apidoc -------
 
-autoapi_dirs = ["../qubols"]
+autoapi_dirs = ["../qubops"]
 
 # -- Options for HTML output ----------------------------------------------
 

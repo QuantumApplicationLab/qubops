@@ -1,20 +1,20 @@
-## qubols 
+## qubops 
 
 
-[![github repo badge](https://img.shields.io/badge/github-repo-000.svg?logo=github&labelColor=gray&color=blue)](https://github.com/QuantumApplicationLab/qubols)
-[![github license badge](https://img.shields.io/github/license/QuantumApplicationLab/qubols)](https://github.com/QuantumApplicationLab/qubols)
-<!-- [![RSD](https://img.shields.io/badge/rsd-qubols-00a3e3.svg)](https://www.research-software.nl/software/qubols) 
-[![workflow pypi badge](https://img.shields.io/pypi/v/qubols.svg?colorB=blue)](https://pypi.python.org/project/qubols/) | -->
+[![github repo badge](https://img.shields.io/badge/github-repo-000.svg?logo=github&labelColor=gray&color=blue)](https://github.com/QuantumApplicationLab/qubops)
+[![github license badge](https://img.shields.io/github/license/QuantumApplicationLab/qubops)](https://github.com/QuantumApplicationLab/qubops)
+<!-- [![RSD](https://img.shields.io/badge/rsd-qubops-00a3e3.svg)](https://www.research-software.nl/software/qubops) 
+[![workflow pypi badge](https://img.shields.io/pypi/v/qubops.svg?colorB=blue)](https://pypi.python.org/project/qubops/) | -->
 
 Solving Linear Systems Using QUBO
 
 ## Installation
 
-To install qubols from GitHub repository, do:
+To install qubops from GitHub repository, do:
 
 ```console
-git clone https://github.com/QuantumApplicationLab/qubols.git
-cd qubols
+git clone https://github.com/QuantumApplicationLab/qubops.git
+cd qubops
 python3 -m pip install .
 ```
 
@@ -24,7 +24,7 @@ Include a link to your project's full documentation here. -->
 
 ## Contributing
 
-If you want to contribute to the development of qubols,
+If you want to contribute to the development of qubops,
 have a look at the [contribution guidelines](CONTRIBUTING.md).
 
 ## Credits

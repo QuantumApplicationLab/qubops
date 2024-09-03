@@ -1,4 +1,4 @@
-# `qubols` developer documentation
+# `qubops` developer documentation
 
 If you're looking for user documentation, go [here](README.md).
 
@@ -15,7 +15,7 @@ source env/bin/activate
 python3 -m pip install --upgrade pip setuptools
 
 # (from the project root directory)
-# install qubols as an editable package
+# install qubops as an editable package
 python3 -m pip install --no-cache-dir --editable .
 # install development dependencies
 python3 -m pip install --no-cache-dir --editable .[dev]
@@ -33,7 +33,7 @@ The first way requires an activated virtual environment with the development too
 pytest -v
 ```
 
-The second is to use `tox`, which can be installed separately (e.g. with `pip install tox`), i.e. not necessarily inside the virtual environment you use for installing `qubols`, but then builds the necessary virtual environments itself by simply running:
+The second is to use `tox`, which can be installed separately (e.g. with `pip install tox`), i.e. not necessarily inside the virtual environment you use for installing `qubops`, but then builds the necessary virtual environments itself by simply running:
 
 ```shell
 tox
@@ -70,15 +70,15 @@ development tools installed.
 # linter
 prospector
 
-# recursively check import style for the qubols module only
-isort --recursive --check-only qubols
+# recursively check import style for the qubops module only
+isort --recursive --check-only qubops
 
-# recursively check import style for the qubols module only and show
+# recursively check import style for the qubops module only and show
 # any proposed changes as a diff
-isort --recursive --check-only --diff qubols
+isort --recursive --check-only --diff qubops
 
-# recursively fix import style for the qubols module only
-isort --recursive qubols
+# recursively fix import style for the qubops module only
+isort --recursive qubops
 ```
 
 To fix readability of your code style you can use [yapf](https://github.com/google/yapf).
@@ -150,7 +150,7 @@ In a new terminal, without an activated virtual environment or an env directory:
 
 ```shell
 # prepare a new directory
-cd $(mktemp -d qubols.XXXXXX)
+cd $(mktemp -d qubops.XXXXXX)
 
 # fresh git clone ensures the release has the state of origin/main branch
 git clone https://github.com/QuantumApplicationLab/qal_core .
@@ -167,7 +167,7 @@ python3 -m pip install --no-cache-dir .
 python3 -m pip install --no-cache-dir .[publishing]
 
 # clean up any previously generated artefacts
-rm -rf qubols.egg-info
+rm -rf qubops.egg-info
 rm -rf dist
 
 # create the source distribution and the wheel
@@ -178,13 +178,13 @@ twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 ```
 
 Visit
-[https://test.pypi.org/project/qubols](https://test.pypi.org/project/qubols)
+[https://test.pypi.org/project/qubops](https://test.pypi.org/project/qubops)
 and verify that your package was uploaded successfully. Keep the terminal open, we'll need it later.
 
 In a new terminal, without an activated virtual environment or an env directory:
 
 ```shell
-cd $(mktemp -d qubols-test.XXXXXX)
+cd $(mktemp -d qubops-test.XXXXXX)
 
 # prepare a clean virtual environment and activate it
 python3 -m venv env
@@ -196,7 +196,7 @@ pip install --upgrade pip setuptools
 # install from test pypi instance:
 python3 -m pip -v install --no-cache-dir \
 --index-url https://test.pypi.org/simple/ \
---extra-index-url https://pypi.org/simple qubols
+--extra-index-url https://pypi.org/simple qubops
 ```
 
 Check that the package works as it should when installed from pypitest.

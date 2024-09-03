@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=qubols
+set SPHINXPROJ=qubops
 
 if "%1" == "" goto help
 

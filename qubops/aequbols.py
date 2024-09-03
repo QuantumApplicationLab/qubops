@@ -1,16 +1,16 @@
 import numpy as np
-from qubols.encodings import RangedEfficientEncoding
+from qubops.encodings import RangedEfficientEncoding
 from typing import Optional, Union, Dict
 import neal
 
-from .qubols import QUBOLS
+from .qubops import qubops
 
 
-class AEQUBOLS(QUBOLS):
-    """Linear solver using an adaptative encoding qubols
+class AEqubops(qubops):
+    """Linear solver using an adaptative encoding qubops
 
     Args:
-        QUBOLS (_type_): _description_
+        qubops (_type_): _description_
     """
 
     def __init__(self, options: Optional[Union[Dict, None]] = None):
@@ -36,7 +36,7 @@ class AEQUBOLS(QUBOLS):
         self.sampler = self.options.pop("sampler")
 
         if self.options["encoding"] != RangedEfficientEncoding:
-            raise ValueError("AEQUBOLS is only possible with RangedEfficientEncoding")
+            raise ValueError("AEqubops is only possible with RangedEfficientEncoding")
 
     def solve(self, matrix: np.ndarray, vector: np.ndarray):
         """Solve the linear system
