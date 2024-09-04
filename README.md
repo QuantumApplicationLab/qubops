@@ -6,7 +6,7 @@
 <!-- [![RSD](https://img.shields.io/badge/rsd-qubops-00a3e3.svg)](https://www.research-software.nl/software/qubops) 
 [![workflow pypi badge](https://img.shields.io/pypi/v/qubops.svg?colorB=blue)](https://pypi.python.org/project/qubops/) | -->
 
-Solving Linear Systems Using QUBO
+Solving Polynomial System of Equations Using QUBO
 
 ## Installation
 

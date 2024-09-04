@@ -45,7 +45,7 @@ class QUBOPS_MIXED(QUBOPS):
             stregth (float): couplign stregth for the substitution. Default 10
 
         Returns:
-            dimod.bqm: binary quadratic model
+            dimod.BQM: binary quadratic model
         """
 
         self.matrices = matrices
@@ -56,13 +56,13 @@ class QUBOPS_MIXED(QUBOPS):
 
         return self.create_qubo_matrix(self.x, strength=strength)
 
-    def sample_bqm(self, bqm: dimod.bqm, num_reads: int) -> dimod.SampleSet:
+    def sample_bqm(self, bqm: dimod.BQM, num_reads: int) -> dimod.SampleSet:
         """Sample the bqm"""
         sampleset = self.sampler.sample(bqm, num_reads=num_reads)
         self.create_variables_mapping(sampleset)
         return sampleset
 
-    def solve(self, matrices: Tuple, strength: float = 10) -> List:
+    def solve(self, matrices: Tuple, strength: float = 1e4) -> List:
         """Solve the system of equations
 
         Args:
@@ -217,14 +217,25 @@ class QUBOPS_MIXED(QUBOPS):
         Args:
             sol (dimod.Sampleset): sampleset from the sampler
         """
+
+        # get all the possible variable prefixes
+        prefixes = list(
+            set(
+                [
+                    sv.base_name + "_"
+                    for sv in self.mixed_solution_vectors.solution_vectors
+                ]
+            )
+        )
+
         # extract the data of the original variables
         self.index_variables, self.mapped_variables = [], []
         for ix, s in enumerate(sol.variables):
-            if s in self.all_vars:
+            if s in self.all_vars and np.any([s.startswith(pf) for pf in prefixes]):
                 self.index_variables.append(ix)
                 self.mapped_variables.append(s)
 
-    def compute_energy(self, vector: np.ndarray, bqm: dimod.BQM) -> Tuple:
+    def compute_energy(self, vector: np.ndarray) -> Tuple:
         """Compue the QUBO energy of the vector containing the solution of the initial problem
 
         Args:
@@ -233,6 +244,7 @@ class QUBOPS_MIXED(QUBOPS):
         closest_vec = []
         bin_encoding_vector = []
         encoded_variables = []
+        bqm = dimod.BQM(self.qubo_dict)
         for val, svec in zip(vector, self.mixed_solution_vectors.encoded_reals):
             closest_val, bin_encoding = svec.find_closest(val)
             closest_vec.append(closest_val)

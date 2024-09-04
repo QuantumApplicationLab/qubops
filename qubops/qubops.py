@@ -68,7 +68,7 @@ class QUBOPS:
             matrices (tuple): matrix of the system
 
         Returns:
-            dimod.bqm: binary quadratic model
+            dimod.BQM: binary quadratic model
         """
 
         self.matrices = matrices
