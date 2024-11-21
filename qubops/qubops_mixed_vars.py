@@ -1,6 +1,7 @@
 from sympy.matrices import Matrix
 from sympy.polys import Poly
 from copy import deepcopy
+from dimod import as_samples
 import numpy as np
 from typing import Optional, Union, Dict, Tuple, List
 from dwave.samplers import SimulatedAnnealingSampler
@@ -56,10 +57,11 @@ class QUBOPS_MIXED(QUBOPS):
 
         return self.create_qubo_matrix(self.x, strength=strength)
 
-    def sample_bqm(self, bqm: dimod.BQM, num_reads: int) -> dimod.SampleSet:
+    def sample_bqm(self, bqm: dimod.BQM, **sampler_options) -> dimod.SampleSet:
         """Sample the bqm"""
-        sampleset = self.sampler.sample(bqm, num_reads=num_reads)
-        self.create_variables_mapping(sampleset)
+        self.create_variables_mapping()
+        sampleset = self.sampler.sample(bqm, **sampler_options)
+        # self.create_variables_mapping(sampleset)
         return sampleset
 
     def solve(self, matrices: Tuple, strength: float = 1e4) -> List:
@@ -211,7 +213,7 @@ class QUBOPS_MIXED(QUBOPS):
         """
         return self.mixed_solution_vectors.decode_solution(data[self.index_variables])
 
-    def create_variables_mapping(self, sol: dimod.SampleSet):
+    def create_variables_mapping(self):
         """generates the index of variables in the solution vector
 
         Args:
@@ -230,7 +232,9 @@ class QUBOPS_MIXED(QUBOPS):
 
         # extract the data of the original variables
         self.index_variables, self.mapped_variables = [], []
-        for ix, s in enumerate(sol.variables):
+
+        # for ix, s in enumerate(sol.variables):
+        for ix, s in enumerate(sorted(self.qubo_dict.variables)):
             if s in self.all_vars and np.any([s.startswith(pf) for pf in prefixes]):
                 self.index_variables.append(ix)
                 self.mapped_variables.append(s)
@@ -273,3 +277,76 @@ class QUBOPS_MIXED(QUBOPS):
             (bin_encoding_vector, encoded_variables),
             bqm_input_variables,
         ), bqm.energy(bqm_input_variables)
+
+    def energy_binary_rep(self, bin_rep):
+        """Compute the energy of a given binary represenation
+
+        Args:
+            bin_refp (_type_): _description_
+        """
+
+        def flatten_list(lst):
+            out = []
+            for elmt in lst:
+                if not isinstance(elmt, list):
+                    out += [elmt]
+                else:
+                    out += elmt
+            return out
+
+        bin_rep_flat = flatten_list(bin_rep)
+        xt_bin_rep_flat = self.extend_binary_representation(bin_rep_flat)
+        var_names = sorted(self.qubo_dict.variables)
+        return self.qubo_dict.energies(as_samples((xt_bin_rep_flat, var_names)))
+
+    def extend_binary_representation(self, bin_rep):
+        """Extend the binary representation of the real variables to the quadratic constraints
+
+        Args:
+            bin_repr (_type_): binary representation of the variables
+        """
+        sample = {}
+        count_var = 0
+        for v in sorted(self.qubo_dict.variables):
+            if v in self.mapped_variables:
+                sample[v] = bin_rep[count_var]
+                count_var += 1
+            else:
+                sample[v] = 0
+
+        for v, _ in sample.items():
+            if v not in self.mapped_variables:
+                var_tmp = v.split("*")
+                itmp = 0
+                for vtmp in var_tmp:
+                    if itmp == 0:
+                        new_val = sample[vtmp]
+                        itmp = 1
+                    else:
+                        new_val *= sample[vtmp]
+
+                sample[v] = new_val
+        return sample
+
+    def verify_quadratic_constraints(self, sample):
+        """check if quadratic constraints are respected or not
+
+        Args:
+            sampleset (_type_): _description_
+        """
+
+        for v, d in sample.items():
+            if v not in self.mapped_variables:
+                var_tmp = v.split("*")
+                itmp = 0
+                for vtmp in var_tmp:
+                    if itmp == 0:
+                        dcomposite = sample[vtmp]
+                        itmp = 1
+                    else:
+                        dcomposite *= sample[vtmp]
+                if d != dcomposite:
+                    print("Error in the quadratic contraints")
+                    print("%s = %d" % (v, d))
+                    for vtmp in var_tmp:
+                        print("%s = %d" % (vtmp, sample[vtmp]))

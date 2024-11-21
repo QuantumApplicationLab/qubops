@@ -217,10 +217,10 @@ class QUBOPS:
             return out_cpy
 
     def decode_solution(self, data):
-        """_summary_
+        """Decodes the solution
 
         Returns:
-            _type_: _description_
+            np.ndarray: solution
         """
         return self.solution_vector.decode_solution(data[self.index_variables])
 
@@ -297,7 +297,7 @@ class QUBOPS:
                     else:
                         dcomposite *= data[idx]
                 if d != dcomposite:
-                    print("Error in the quadratic contratints")
+                    print("Error in the quadratic contraints")
                     print("%s = %d" % (v, d))
                     for vtmp in var_tmp:
                         idx = self.index_variables[self.mapped_variables.index(vtmp)]
