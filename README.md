@@ -6,6 +6,8 @@
 [![RSD](https://img.shields.io/badge/rsd-qubops-00a3e3.svg)](https://www.research-software.nl/software/qubops) 
 [![workflow pypi badge](https://img.shields.io/pypi/v/qubops.svg?colorB=blue)](https://pypi.python.org/project/qubops/) | -->
 
+![qubols](./docs/qubols_illustration.png)
+
 ## Use
 `qubops` allows solving polynomial system of equations using a QUBO formalism. An example can be found [here](./example/qubops.ipynb)
 
