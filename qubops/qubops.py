@@ -7,7 +7,6 @@ from .solution_vector import SolutionVector_V2 as SolutionVector
 
 
 class QUBOPS:
-
     def __init__(
         self,
         solution_vector: SolutionVector,

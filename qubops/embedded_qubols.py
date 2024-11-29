@@ -10,7 +10,6 @@ from .qubops import QUBOPS
 
 
 class EmbeddedQUBOPS(QUBOPS):
-
     def __init__(self, options: Optional[Union[Dict, None]] = None):
         """Linear Solver using QUBO
 
@@ -91,9 +90,11 @@ class EmbeddedQUBOPS(QUBOPS):
         self.x = sol.create_polynom_vector()
         self.qubo_dict = self.create_qubo_matrix(self.x, prec=self.options["threshold"])
 
-        self.embedded_qubo_dict, self.embedding, self.chains = (
-            self.create_embedded_qubo_dict()
-        )
+        (
+            self.embedded_qubo_dict,
+            self.embedding,
+            self.chains,
+        ) = self.create_embedded_qubo_dict()
 
         self.sampleset = self.sampler.sample_qubo(
             self.embedded_qubo_dict, num_reads=self.options["num_reads"]

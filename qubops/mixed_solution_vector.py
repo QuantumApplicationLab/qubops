@@ -5,7 +5,6 @@ from .encodings import RangedEfficientEncoding
 
 
 class MixedSolutionVector(object):
-
     def __init__(self, solution_vectors):
         """init the mixed solution vector
 
@@ -89,7 +88,6 @@ class MixedSolutionVector(object):
 
 
 class MixedSolutionVector_V2(MixedSolutionVector):
-
     def __init__(self, solution_vectors):
         """init the mixed solution vector
 

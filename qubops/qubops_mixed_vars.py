@@ -11,7 +11,6 @@ from .mixed_solution_vector import MixedSolutionVector_V2 as MixedSolutionVector
 
 
 class QUBOPS_MIXED(QUBOPS):
-
     def __init__(
         self,
         mixed_solution_vectors: MixedSolutionVector,

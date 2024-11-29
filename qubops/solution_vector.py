@@ -5,7 +5,6 @@ from .encodings import RangedEfficientEncoding
 
 
 class SolutionVector(object):
-
     def __init__(self, size, nqbit, encoding, range=1.0, offset=0.0, base_name="x"):
         """Encode the solution vector in a list of RealEncoded
 
@@ -70,7 +69,6 @@ class SolutionVector(object):
 
 
 class SolutionVector_V2(SolutionVector):
-
     def __init__(self, size, encoding, base_name="x"):
         """_summary_
 

@@ -4,7 +4,6 @@ import numpy as np
 
 
 class BaseQbitEncoding(object):
-
     def __init__(self, nqbit, var_base_name):
         """Encode a  single real number in a
 
@@ -89,7 +88,6 @@ class BaseQbitEncoding(object):
 
 
 class RangedEfficientEncoding(BaseQbitEncoding):
-
     def __init__(self, nqbit, range, offset, var_base_name):
         super().__init__(nqbit, var_base_name)
         self.base_exponent = 0
@@ -130,7 +128,6 @@ class RangedEfficientEncoding(BaseQbitEncoding):
 
 
 class EfficientEncoding(BaseQbitEncoding):
-
     def __init__(self, nqbit, var_base_name):
         super().__init__(nqbit, var_base_name)
         self.base_exponent = 0
@@ -162,7 +159,6 @@ class EfficientEncoding(BaseQbitEncoding):
 
 
 class RealQbitEncoding(BaseQbitEncoding):
-
     def __init__(self, nqbit, var_base_name):
         super().__init__(nqbit, var_base_name)
         self.base_exponent = 0
@@ -189,7 +185,6 @@ class RealQbitEncoding(BaseQbitEncoding):
 
 
 class RealUnitQbitEncoding(BaseQbitEncoding):
-
     def __init__(self, nqbit, var_base_name):
         super().__init__(nqbit, var_base_name)
         self.base_exponent = 0
@@ -248,7 +243,6 @@ class RealUnitQbitEncoding(BaseQbitEncoding):
 
 
 class PositiveQbitEncoding(BaseQbitEncoding):
-
     def __init__(self, nqbit, var_base_name, offset=0, step=1):
         super().__init__(nqbit, var_base_name)
         self.offset = offset
@@ -274,7 +268,6 @@ class PositiveQbitEncoding(BaseQbitEncoding):
 
 
 class DiscreteValuesEncoding(BaseQbitEncoding):
-
     def __init__(self, values, nqbit, var_base_name):
         super().__init__(nqbit, var_base_name)
         self.discrete_values = values
