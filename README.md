@@ -9,7 +9,7 @@
 [![Tests](https://github.com/quantumapplicationlab/qubops/actions/workflows/build.yml/badge.svg)](https://github.com/quantumapplicationlab/qubops/actions/workflows/build.yml)
 [![Coverage Status](https://coveralls.io/repos/github/QuantumApplicationLab/qubops/badge.svg?branch=master)](https://coveralls.io/github/QuantumApplicationLab/qubops?branch=master)
 
-![qubops](./docs/qubols_illustration.png)
+![qubops](./docs/qubops_llustration.png)
 
 ## QUBOPS
 `qubops` allows solving polynomial system of equations using a QUBO formalism. An example can be found [here](./example/qubops.ipynb)
