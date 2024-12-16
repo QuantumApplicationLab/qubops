@@ -1,7 +1,7 @@
 from sympy.matrices import Matrix
 import numpy as np
 from typing import Optional, Union, Dict
-import neal
+from dwave.samplers import SimulatedAnnealingSampler
 import dimod
 from .solution_vector import SolutionVector_V2 as SolutionVector
 
@@ -24,7 +24,7 @@ class QUBOPS:
         """
 
         default_solve_options = {
-            "sampler": neal.SimulatedAnnealingSampler(),
+            "sampler": SimulatedAnnealingSampler(),
             "num_reads": 100,
             "verbose": False,
         }

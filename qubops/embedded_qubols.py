@@ -1,7 +1,7 @@
 import numpy as np
 from qubops.encodings import RealUnitQbitEncoding
 from typing import Optional, Union, Dict
-import neal
+from dwave.samplers import SimulatedAnnealingSampler
 import dwave_networkx as dnx
 from minorminer import find_embedding
 from dwave.embedding import embed_qubo, majority_vote, chain_break_frequency
@@ -18,7 +18,7 @@ class EmbeddedQUBOPS(QUBOPS):
         """
 
         self.default_solve_options = {
-            "sampler": neal.SimulatedAnnealingSampler(),
+            "sampler": SimulatedAnnealingSampler(),
             "encoding": RealUnitQbitEncoding,
             "num_qbits": 11,
             "num_reads": 100,

@@ -1,7 +1,8 @@
+import dwave.samplers
 import numpy as np
 from qubops.encodings import RangedEfficientEncoding
 from typing import Optional, Union, Dict
-import neal
+from dwave.samplers import SimulatedAnnealingSampler
 
 from .qubops import qubops
 
@@ -21,7 +22,7 @@ class AEqubops(qubops):
         """
 
         default_solve_options = {
-            "sampler": neal.SimulatedAnnealingSampler(),
+            "sampler": SimulatedAnnealingSampler(),
             "encoding": RangedEfficientEncoding,
             "range": 1.0,
             "offset": 0.0,
